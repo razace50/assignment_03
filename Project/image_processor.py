@@ -97,6 +97,8 @@ class ImageProcessor:
             self.differences.append(Difference(x, y, r))
 
             count += 1
+            #save modified image automatically
+            cv2.imwrite("output_image.jpg", self.modified)
 
     def check_click(self, x, y):
 
