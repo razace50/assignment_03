@@ -1,6 +1,6 @@
-import cv2
-import random
 import math
+import random
+import cv2
 
 from alterations import (
     BlurAlteration,
@@ -9,108 +9,190 @@ from alterations import (
 )
 
 
-# stores information about each difference
 class Difference:
+    """
+    Keeps track of a single difference region.
+    """
+
+    # Extra space allowed around the circle
+    # so the game feels more fair to play.
+    CLICK_TOLERANCE = 12
 
     def __init__(self, x, y, radius):
-
         self.x = x
         self.y = y
         self.radius = radius
 
-        # used to track whether user found it
+        # Becomes True once player finds it
         self.found = False
 
-    def is_clicked(self, px, py):
+    def is_clicked(self, click_x, click_y):
+        """
+        Check if the player clicked close enough
+        to this difference.
+        """
 
-        # distance between mouse click and difference center
-        dist = math.sqrt((px - self.x) ** 2 + (py - self.y) ** 2)
+        distance = math.sqrt(
+            (click_x - self.x) ** 2 +
+            (click_y - self.y) ** 2
+        )
 
-        return dist <= self.radius + 10
+        return distance <= (
+            self.radius + self.CLICK_TOLERANCE
+        )
 
 
-# handles image processing and difference generation
 class ImageProcessor:
+    """
+    Handles image loading and creates all
+    spot-the-difference regions.
+    """
+
+    DIFFERENCE_COUNT = 5
 
     def __init__(self):
 
-        self.original = None
-        self.modified = None
+        self.original_image = None
+        self.modified_image = None
 
-        # list to store all differences
+        # Stores all generated differences
         self.differences = []
 
     def load_image(self, path):
+        """
+        Load the selected image using OpenCV.
+        """
 
-        # read image using OpenCV
-        self.original = cv2.imread(path)
+        self.original_image = cv2.imread(path)
 
-        return self.original is not None
+        return self.original_image is not None
 
     def generate_differences(self):
+        """
+        Generate 5 random non-overlapping
+        difference regions.
+        """
 
-        # create duplicate image
-        self.modified = self.original.copy()
+        # Copy original image so edits
+        # do not affect the original.
+        self.modified_image = (
+            self.original_image.copy()
+        )
 
-        # clear old differences
-        self.differences = []
+        # Remove old differences if a new
+        # image is loaded.
+        self.differences.clear()
 
-        h, w = self.original.shape[:2]
+        height, width = (
+            self.original_image.shape[:2]
+        )
 
-        count = 0
+        # Available alteration effects
+        alteration_types = [
+            BlurAlteration,
+            BrightnessAlteration,
+            ColorShiftAlteration
+        ]
 
-        while count < 5:
+        while len(self.differences) < self.DIFFERENCE_COUNT:
 
-            # random size and position
-            r = random.randint(40, 70)
+            # Random circle size
+            radius = random.randint(35, 60)
 
-            x = random.randint(r + 30, w - r - 30)
-            y = random.randint(r + 30, h - r - 30)
+            # Random position
+            x = random.randint(
+                radius + 20,
+                width - radius - 20
+            )
 
-            # check if circles overlap
-            overlap = False
+            y = random.randint(
+                radius + 20,
+                height - radius - 20
+            )
 
-            for d in self.differences:
-
-                dist = math.sqrt((x - d.x) ** 2 + (y - d.y) ** 2)
-
-                if dist < (r + d.radius + 20):
-                    overlap = True
-                    break
-
-            if overlap:
+            # Skip if region overlaps another
+            if self.overlaps_existing(x, y, radius):
                 continue
 
-            # randomly choose one image effect
-            choice = random.choice([
-                BlurAlteration,
-                BrightnessAlteration,
-                ColorShiftAlteration
-            ])
+            # Pick random alteration type
+            alteration_class = random.choice(
+                alteration_types
+            )
 
-            # apply selected effect
-            alteration = choice(x, y, r)
+            # Create alteration object
+            alteration = alteration_class(
+                x,
+                y,
+                radius
+            )
 
-            self.modified = alteration.apply(self.modified)
+            # Apply effect to modified image
+            self.modified_image = alteration.apply(
+                self.modified_image
+            )
 
-            # save difference info
-            self.differences.append(Difference(x, y, r))
+            # Store difference info
+            difference = Difference(
+                x,
+                y,
+                radius
+            )
 
-            count += 1
-            #save modified image automatically
-            cv2.imwrite("output_image.jpg", self.modified)
+            self.differences.append(difference)
+
+            # Save modified image automatically
+            cv2.imwrite(
+                "modified_output.png",
+                self.modified_image
+            )
+
+    def overlaps_existing(self, x, y, radius):
+        """
+        Make sure difference regions
+        do not overlap.
+        """
+
+        for difference in self.differences:
+
+            distance = math.sqrt(
+                (x - difference.x) ** 2 +
+                (y - difference.y) ** 2
+            )
+
+            minimum_distance = (
+                radius +
+                difference.radius +
+                25
+            )
+
+            if distance < minimum_distance:
+                return True
+
+        return False
 
     def check_click(self, x, y):
+        """
+        Check whether the player's click
+        matches any remaining difference.
+        """
 
-        # check whether user clicked on a difference
-        for d in self.differences:
+        for difference in self.differences:
 
-            if not d.found and d.is_clicked(x, y):
-                return d
+            if not difference.found:
+
+                if difference.is_clicked(x, y):
+                    return difference
 
         return None
 
-    def remaining(self):
+    def remaining_differences(self):
+        """
+        Count how many differences
+        are still not found.
+        """
 
-        # count how many differences are left
-        return sum(1 for d in self.differences if not d.found)
+        return sum(
+            1
+            for difference in self.differences
+            if not difference.found
+        )
