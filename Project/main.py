@@ -196,7 +196,7 @@ class SpotDifferenceGame:
 
                 messagebox.showinfo(
                     "Congratulations",
-                    "You found all 5 differences!"
+                    f"You found all {self.total_differences} differences!"
                 )
 
                 self.game_over = True
