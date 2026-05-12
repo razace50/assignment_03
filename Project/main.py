@@ -69,7 +69,8 @@ class SpotDifferenceGame:
             image_frame,
             width=self.DISPLAY_WIDTH,
             height=400,
-            bg="lightgray"
+            bg="lightgray",
+            cursor="target"
         )
         self.original_canvas.pack(side=tk.LEFT, padx=10)
 
