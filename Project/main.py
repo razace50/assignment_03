@@ -241,22 +241,23 @@ class SpotDifferenceGame:
                 self.draw_marker(difference, "blue")
 
         self.update_status(force_zero=True)
-def update_status(self, force_zero=False):
-    """Update game progress text."""
 
-    total = len(self.processor.differences)
+    def update_status(self, force_zero=False):
+        """Updates the text showing how many differences are left."""
 
-    remaining = 0 if force_zero else (
-        self.processor.remaining_differences()
-    )
+        if force_zero:
+            remaining = 0
+        else:
+            remaining = self.processor.remaining_differences()
 
-    self.info_label.config(
-        text=(
-            f"Found: {self.found_count}/{total}    "
-            f"Remaining: {remaining}    "
-            f"Mistakes: {self.mistakes}/{self.MAX_MISTAKES}"
+        self.info_label.config(
+            text=(
+                f"Found: {self.found_count}/5    "
+                f"Remaining: {remaining}    "
+                f"Mistakes: {self.mistakes}/3"
+            )
         )
-    )
+
     def run(self):
         """Starts the game loop (keeps the window running)."""
 
