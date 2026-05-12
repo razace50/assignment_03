@@ -87,10 +87,8 @@ class SpotDifferenceGame:
         """Lets the user pick an image file from their computer."""
 
         file_path = filedialog.askopenfilename(
-            title="Select an Image",
-            filetypes=[
-                ("Image Files", "*.jpg *.jpeg *.png *.bmp")
-            ]
+            title="choose an Image",
+            filetypes=[("Image Files", "*.jpg *.jpeg *.png *.bmp")]
         )
 
         if not file_path:
@@ -141,9 +139,10 @@ class SpotDifferenceGame:
         new_height = int(height * self.scale)
 
         resized_original = cv2.resize(
-            original_rgb,
-            (self.DISPLAY_WIDTH, new_height)
-        )
+    original_rgb,
+    (self.DISPLAY_WIDTH, new_height),
+    interpolation=cv2.INTER_AREA
+)
 
         resized_modified = cv2.resize(
             modified_rgb,
