@@ -185,7 +185,7 @@ class SpotDifferenceGame:
 
         difference = self.processor.check_click(image_x, image_y)
 
-        if difference:
+        if difference and not difference.found:
             difference.found = True
             self.found_count += 1
 
