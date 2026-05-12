@@ -84,33 +84,30 @@ class SpotDifferenceGame:
         self.modified_canvas.bind("<Button-1>", self.handle_click)
 
     def load_image(self):
-        """Lets the user pick an image file from their computer."""
+       """Open an image and start a fresh game."""
 
         file_path = filedialog.askopenfilename(
-            title="Select an Image",
-            filetypes=[
-                ("Image Files", "*.jpg *.jpeg *.png *.bmp")
-            ]
+            title="choose an Image",
+            filetypes=[("Images", "*.jpg *.jpeg *.png *.bmp")]
         )
 
-        if not file_path:
-            return
+       # user pressed cancel
+    if not file_path:
+        return
 
-        success = self.processor.load_image(file_path)
+    if not self.processor.load_image(file_path):
+        messagebox.showerror(
+            "Loading Failed",
+            "Couldn't open that image."
+        )
+        return
 
-        if not success:
-            messagebox.showerror(
-                "Error",
-                "Unable to load image file."
-            )
-            return
+    self.processor.generate_differences()
 
-        self.processor.generate_differences()
-
-        self.reset_round()
-        self.display_images()
-        self.update_status()
-
+    self.reset_round()
+    self.display_images()
+    self.update_status()
+    
     def reset_round(self):
         """Clears everything so the game can restart properly."""
 
