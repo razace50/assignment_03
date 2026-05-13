@@ -11,9 +11,10 @@ class Alteration:
         self.x = x
         self.y = y
         self.radius = radius
+        
 
     def create_mask(self, image_shape):
-        """Create circular mask for alteration region."""
+        """Create circular mask for the alteration region."""
 
         mask = np.zeros(image_shape[:2], dtype=np.uint8)
 
@@ -25,10 +26,12 @@ class Alteration:
             -1
         )
 
+
         return mask
 
     def apply(self, image):
         raise NotImplementedError
+
 
 
 class BlurAlteration(Alteration):
@@ -47,7 +50,7 @@ class BlurAlteration(Alteration):
 
 
 class BrightnessAlteration(Alteration):
-    """Increase brightness in selected region."""
+    """Increase brightness in the selected region."""
 
     def apply(self, image):
         result = image.copy()
@@ -66,7 +69,7 @@ class BrightnessAlteration(Alteration):
 
 
 class ColorShiftAlteration(Alteration):
-    """Shift image colors in selected region."""
+    """Shift image colors in the selected region."""
 
     def apply(self, image):
         result = image.copy()
