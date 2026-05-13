@@ -18,6 +18,8 @@ class Difference:
     # so the game feels more fair to play.
     CLICK_TOLERANCE = 12
 
+
+
     def __init__(self, x, y, radius):
         self.x = x
         self.y = y
@@ -48,7 +50,9 @@ class ImageProcessor:
     spot-the-difference regions.
     """
 
+
     DIFFERENCE_COUNT = 5
+
 
     def __init__(self):
 
@@ -66,6 +70,8 @@ class ImageProcessor:
         self.original_image = cv2.imread(path)
 
         return self.original_image is not None
+
+
 
     def generate_differences(self):
         """
