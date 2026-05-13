@@ -176,7 +176,7 @@ class SpotDifferenceGame:
         )
 
     def handle_click(self, event):
-        """Handles what happens when the player clicks on the image."""
+        """Manage what happens when the player clicks on the image."""
 
         if self.game_over:
             return
@@ -189,6 +189,9 @@ class SpotDifferenceGame:
         if difference and not difference.found:
             difference.found = True
             self.found_count += 1
+
+
+
 
             self.draw_marker(difference, "red")
 
